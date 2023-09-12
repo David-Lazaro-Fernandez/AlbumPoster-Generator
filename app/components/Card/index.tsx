@@ -1,56 +1,55 @@
+"use client"
+import { useEffect, useState } from "react"
 import Image from "next/image"
-import { formatDate } from "@/app/services/formatDate"
-import { AlbumData, Track } from "@/app/interfaces/albumData"
-import { getToken } from "@/app/services/getToken"
+import { Track } from "@/app/interfaces/albumData"
 import ColorPalette from '../ColorPalette'
+import { CardProps } from "@/app/interfaces/Card"
+import { getBottomCenterPixelColor } from "@/app/services/extractColors"
+import { calculateLuminosity, hexToRgb } from "@/app/services/sortColors"
 
-async function getAlbum() {
-    const ID = '4Uv86qWpGTxf7fU7lG5X6F'
-    const ENDPOINT = 'https://api.spotify.com/v1/albums/'
-    const TOKEN = await getToken()
-    try {
-        const data = await fetch('https://api.spotify.com/v1/albums/3D9NENGfg4DFmYJrEaxRHd', {
-            headers: {
-                'content-type': 'application/json',
-                'authorization': `Bearer ${TOKEN}`
-            },
-        })
-        const album = await data.json()
-        return album
-    }
-    catch (error) {
-        console.log(error)
-    }
+export default function Card({albumData}:CardProps) {
+    
 
-}
+    const [bottomColor, setBottomColor] = useState<number[]>([]);
+    const [darkText, setDarkText] = useState<number>(0);
+    useEffect(() => {
+        async function fetchColor() {
+            try {
+                const color = await getBottomCenterPixelColor(albumData.image);
+                setBottomColor(color);
+            } catch (error) {
+                console.error('Error fetching the color:', error);
+            }
+        }
 
-export default async function Card() {
-    const album = await getAlbum()
-    console.log(album)
-    const albumData: AlbumData = {
-        name: album.name,
-        artist: album.artists[0].name,
-        ref: album.href,
-        image: album.images[0].url,
-        tracks: album.tracks.items,
-        totalTracks: album.tracks.total,
-        releaseDate: formatDate(album.release_date),
-        uri: album.uri
-    }
+        fetchColor();
+    }, [albumData.image]);
+    
+    useEffect(() => {
+        setDarkText(calculateLuminosity(bottomColor))
+        console.log('darktext',calculateLuminosity(bottomColor))        
+    }, [bottomColor])
+
+
     const third = Math.ceil(albumData.totalTracks / 3);
     let totalDuration = 0
     return (
-        <section className="flex flex-col text-gray-900 gap-5 m-10">
+        <section className="flex flex-col text-gray-900 gap-10 p-10" 
+        style={
+            {
+                backgroundColor:`rgba(${bottomColor[0]},${bottomColor[1]},${bottomColor[2]},${bottomColor[3]})`, 
+                color:`${darkText > 0.5 ? 'black' : 'white'}`}}
+        >
             <article className="flex justify-center">
                 <Image width={400} height={400} src={albumData.image} alt="NextJS" />
             </article>
-            <article>
-                <h1 className=" text-6xl font-bold">{albumData.name}</h1>
-                <h1 className=" text-3xl font-medium">{albumData.artist}</h1>
+            <article className="max-w-2xl">
+                <h1 className="text-7xl font-bold">{albumData.name}</h1>
+                <h1 className="text-3xl font-medium">{albumData.artist}</h1>
             </article>
             <article >
                 <div className="flex flex-row gap-3">
-                    <div className="flex flex-col flex-1 leading-8 text-sm">
+                    <div className="flex flex-col flex-1 leading-8 text-xl">
                         {albumData.tracks.slice(0, third).map((track: Track, index: number) => {
                             totalDuration += track.duration_ms
                             return (
@@ -62,7 +61,7 @@ export default async function Card() {
                         })}
                     </div>
 
-                    <div className="flex flex-col flex-1 leading-8 text-sm">
+                    <div className="flex flex-col flex-1 leading-8 text-xl">
                         {albumData.tracks.slice(third, third * 2).map((track: Track, index: number) => {
                             totalDuration += track.duration_ms
                             return (
@@ -73,7 +72,7 @@ export default async function Card() {
                         })}
                     </div>
 
-                    <div className="flex flex-col flex-1 leading-8 text-sm">
+                    <div className="flex flex-col flex-1 leading-8 text-xl">
                         {albumData.tracks.slice(third * 2).map((track: Track, index: number) => {
                             totalDuration += track.duration_ms
                             return (
@@ -86,10 +85,10 @@ export default async function Card() {
                 </div>
             </article>
             <article className="flex flex-row">
-                <div className="flex-1 text-2xl font-bold">
+                <div className="flex-1 text-2xl font-bold" style={{marginLeft:'-10px'}}>
                     <Image width={360} height={90} src={`https://scannables.scdn.co/uri/plain/png/ffffff/black/640/${albumData.uri}`} alt="Spotify Code" />
                 </div>
-                <div className="flex-1 flex-col text-left">
+                <div className="flex-1 flex items-center flex-col text-left">
                     <h1 className='text-2xl font-bold'>Run Time:</h1>
                     <p>{`${albumData.totalTracks} songs ${Math.floor(totalDuration / 60000)} min`}</p>
                 </div>

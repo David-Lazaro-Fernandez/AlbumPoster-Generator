@@ -10,7 +10,7 @@ async function getAlbum() {
   const ENDPOINT = 'https://api.spotify.com/v1/albums/'
   const TOKEN = await getToken()
   try {
-    const data = await fetch('https://api.spotify.com/v1/albums/7gsWAHLeT0w7es6FofOXk1', {
+    const data = await fetch('https://api.spotify.com/v1/albums/58ufpQsJ1DS5kq4hhzQDiI', {
       headers: {
         'content-type': 'application/json',
         'authorization': `Bearer ${TOKEN}`
@@ -35,7 +35,7 @@ export default async function Home() {
     tracks: album.tracks.items,
     totalTracks: album.tracks.total,
     releaseDate: formatDate(album.release_date),
-    uri: album.uri
+    uri: album.uri,
   }
 
   return (

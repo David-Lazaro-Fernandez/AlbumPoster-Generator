@@ -1,0 +1,10 @@
+svg {
+    /* Estilos para el SVG */
+    width: 100%;
+    height: auto;
+}
+
+svg rect:first-child {
+    /* Estilos para el primer elemento rect del SVG */
+    fill: rgba(255,255,25,0);
+}

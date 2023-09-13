@@ -1,4 +1,5 @@
 "use client"
+import './svg.css'
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import { Track } from "@/app/interfaces/albumData"
@@ -12,6 +13,7 @@ export default function Card({albumData}:CardProps) {
 
     const [bottomColor, setBottomColor] = useState<number[]>([]);
     const [darkText, setDarkText] = useState<number>(0);
+    const [spotifyCode, setSpotifyCode] = useState<string>('');
     useEffect(() => {
         async function fetchColor() {
             try {
@@ -30,11 +32,24 @@ export default function Card({albumData}:CardProps) {
         console.log('darktext',calculateLuminosity(bottomColor))        
     }, [bottomColor])
 
+    useEffect(() => {
+        async function fetchSpotifyCode(){
+            const url = `https://scannables.scdn.co/uri/plain/svg/ffffff/${darkText > 0.5 ? 'black' : 'white'}/640/${albumData.uri}`
+            console.log(url)
+            const res = await fetch(url)
+            const svg = await res.text()
+            setSpotifyCode(svg)
+        }
+
+        fetchSpotifyCode()
+
+    }, [darkText])
+
 
     const third = Math.ceil(albumData.totalTracks / 3);
     let totalDuration = 0
     return (
-        <section className="flex flex-col text-gray-900 gap-10 p-10" 
+        <section className="flex flex-col text-gray-900 gap-10 p-10 shadow-inner" 
         style={
             {
                 backgroundColor:`rgba(${bottomColor[0]},${bottomColor[1]},${bottomColor[2]},${bottomColor[3]})`, 
@@ -86,7 +101,7 @@ export default function Card({albumData}:CardProps) {
             </article>
             <article className="flex flex-row">
                 <div className="flex-1 text-2xl font-bold" style={{marginLeft:'-10px'}}>
-                    <Image width={360} height={90} src={`https://scannables.scdn.co/uri/plain/png/ffffff/black/640/${albumData.uri}`} alt="Spotify Code" />
+                    <div dangerouslySetInnerHTML={{ __html: spotifyCode }}/>
                 </div>
                 <div className="flex-1 flex items-center flex-col text-left">
                     <h1 className='text-2xl font-bold'>Run Time:</h1>

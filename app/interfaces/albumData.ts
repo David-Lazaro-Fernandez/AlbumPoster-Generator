@@ -6,7 +6,7 @@ export interface AlbumData {
     tracks: Track[],
     totalTracks: number,
     releaseDate: string,
-    uri: string
+    uri: string,
 }
 
 export interface Track {

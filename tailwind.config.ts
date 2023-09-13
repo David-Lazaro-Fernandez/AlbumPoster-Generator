@@ -18,7 +18,8 @@ const config: Config = {
         '40': '40px',
       },
       boxShadow: {
-        'custom': '-28px 3px 19px 9px rgba(25,25,25,0.75)'
+        'custom': '-28px 3px 19px 9px rgba(25,25,25,0.75)',
+        'inner': 'inset 0 0 20px #000000'
       },
     },
   },
